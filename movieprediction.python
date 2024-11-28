@@ -1,0 +1,78 @@
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# Features (X) and target (y)
+X = df.drop('Rating', axis=1)
+y = df['Rating']
+
+# Split the data into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Set up the column transformer for one-hot encoding of categorical variables
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('genre', OneHotEncoder(), ['Genre']),
+        ('director', OneHotEncoder(), ['Director']),
+        ('actors', OneHotEncoder(), ['Actors'])
+    ])
+import pandas as pd
+import numpy as np
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Generate a synthetic dataset
+data = {
+    'Genre': np.random.choice(['Action', 'Comedy', 'Drama', 'Romance', 'Horror'], size=100),
+    'Director': np.random.choice(['Spielberg', 'Nolan', 'Tarantino', 'Scorsese', 'Coppola'], size=100),
+    'Actors': np.random.choice(['Actor A', 'Actor B', 'Actor C', 'Actor D', 'Actor E'], size=100),
+    'Rating': np.random.uniform(1, 10, size=100)  # Ratings between 1 and 10
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Display the first few rows of the dataset
+print(df.head())
+  Genre   Director   Actors    Rating
+0  Romance   Scorsese  Actor B  9.577647
+1   Horror  Spielberg  Actor C  3.976753
+2    Drama   Scorsese  Actor A  5.974885
+3   Horror      Nolan  Actor A  6.150632
+4   Horror  Spielberg  Actor D  9.822984
+# Build a pipeline with preprocessing and the regression model
+model = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('regressor', RandomForestRegressor(n_estimators=100, random_state=42))
+])
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Predict ratings on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model's performance
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f'Mean Absolute Error (MAE): {mae:.2f}')
+print(f'R-squared (R²): {r2:.2f}')
+Mean Absolute Error (MAE): 3.11
+R-squared (R²): -0.30
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Plot the predicted vs actual ratings
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred)
+plt.plot([1, 10], [1, 10], '--r', label="Perfect Prediction")
+plt.xlabel('Actual Rating')
+plt.ylabel('Predicted Rating')
+plt.title('Actual vs Predicted Movie Ratings')
+plt.legend()
+plt.show()
